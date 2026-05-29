@@ -22,11 +22,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Grant Gradle execute permission
-        run: chmod +x gradlew
-
       - name: Build AAR
-        run: ./gradlew :android_plugin:assembleRelease
+        run: gradle :android_plugin:assembleRelease
 
       - name: Rename AAR
         run: |
