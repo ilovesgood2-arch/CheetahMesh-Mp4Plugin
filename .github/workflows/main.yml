@@ -1,0 +1,50 @@
+name: Build Mp4Plugin AAR
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant Gradle execute permission
+        run: chmod +x gradlew
+
+      - name: Build AAR
+        run: ./gradlew :android_plugin:assembleRelease
+
+      - name: Rename AAR
+        run: |
+          cp android_plugin/build/outputs/aar/android_plugin-release.aar \
+             Mp4Plugin.aar
+
+      - name: Upload AAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mp4Plugin
+          path: Mp4Plugin.aar
+          retention-days: 30
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Mp4Plugin v${{ github.run_number }}"
+          files: Mp4Plugin.aar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
